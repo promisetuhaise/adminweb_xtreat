@@ -3,9 +3,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "./src/screens/LoginScreen";
  import AdminDashboard from './src/screens/AdminDashboard';
-// // import HomeScreen from './src/screens/HomeScreen';
+
 import Vendors from './src/screens/VendorsScreen';
 import Customers from './src/screens/CustomersScreen';
+import VendorDetails from './src/screens/vendorDetails';
 // import ChatListScreen from './src/screens/ChatListScreen';
 // import ChatScreen from './src/screens/ChatScreen';
 // import AnalyticsScreen from './src/screens/AnalyticsScreen';
@@ -45,6 +46,7 @@ export default function App() {
          <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
          <Stack.Screen name="Customers" component={Customers} />
          <Stack.Screen name="Vendors" component={Vendors} />
+         <Stack.Screen name="VendorDetails" component={VendorDetails} />
         
         
   

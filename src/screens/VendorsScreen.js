@@ -1,339 +1,309 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
-  SafeAreaView,
   TouchableOpacity,
-  Image,
+  ScrollView,
   Modal,
-  StyleSheet as RNStyleSheet,
-} from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
-import AppPopupModal from '../modal/applicationDetails'; // Import the separate modal component
+  Alert,
+  Pressable,
+} from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function SellerProfiles() {
+const VendorsScreen = () => {
   const navigation = useNavigation();
 
-  // State to track which tab is active
-  const [activeTab, setActiveTab] = useState('Sellers');
+  // State for filtering vendor status ("Approved", "Pending", "Declined")
+  const [activeFilter, setActiveFilter] = useState("Approved");
 
-  // --------------------------------------------
-  // SELLERS PAGINATION
-  // --------------------------------------------
-  const [currentSellersPage, setCurrentSellersPage] = useState(1);
-  const sellersPerPage = 3; // 3 sellers per page
+  // State for vendor list and pagination
+  const [vendorList, setVendorList] = useState([]);
+  const itemsPerPage = 6;
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Sellers data (updated with shopDescription)
-  const sellers = [
-    {
-      id: 1,
-      icon: require('../../assets/shop1.jpg'),
-      name: 'Albo',
-      website: 'Promise Wendy',
-      phone: '(+256) 774788071',
-      email: 'emailalbo@email.com',
-      location: 'Kampala',
-      shopDescription: 'Quality electronics and fashion.',
-      stock: '120 items',
-      status: 'Approved',
-    },
-    {
-      id: 2,
-      icon: require('../../assets/shop2.jpg'),
-      name: 'Asashio',
-      website: 'Promise Wendy',
-      phone: '+(256) 774788071',
-      email: 'emailasashio@email.com',
-      location: 'Kampala',
-      shopDescription: 'Trendy fashion and more.',
-      stock: '80 items',
-      status: 'Approved',
-    },
-    {
-      id: 3,
-      icon: require('../../assets/shop3.jpg'),
-      name: 'Ecom',
-      website: 'Promise Wendy',
-      phone: '(+256) 774788071',
-      email: 'emailEcom@email.com',
-      location: 'Kampala',
-      shopDescription: 'Reliable e-commerce solutions.',
-      stock: '200 items',
-      status: 'Approved',
-    },
-    {
-      id: 4,
-      icon: require('../../assets/shop1.jpg'),
-      name: 'ExtraShop',
-      website: 'Another Site',
-      phone: '(+256) 123456789',
-      email: 'extra@shop.com',
-      location: 'Kampala',
-      shopDescription: 'Delicious food and drinks.',
-      stock: '50 items',
-      status: 'Approved',
-    },
-    {
-      id: 5,
-      icon: require('../../assets/shop2.jpg'),
-      name: 'ShopFive',
-      website: 'Some Site',
-      phone: '(+256) 999888777',
-      email: 'shop5@shop.com',
-      location: 'Kampala',
-      shopDescription: 'Fashionable and service-oriented.',
-      stock: '60 items',
-      status: 'Approved',
-    },
-  ];
-  const totalSellersPages = Math.ceil(sellers.length / sellersPerPage);
-  const startSellerIndex = (currentSellersPage - 1) * sellersPerPage;
-  const displayedSellers = sellers.slice(startSellerIndex, startSellerIndex + sellersPerPage);
+  // State for deletion alert modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedVendor, setSelectedVendor] = useState(null);
 
-  // --------------------------------------------
-  // APPLICATIONS PAGINATION (6 columns x 2 rows => 12 items)
-  // --------------------------------------------
-  const [currentAppPage, setCurrentAppPage] = useState(1);
-  const appsPerPage = 12;
-  const applications = [
-    { id: 101, icon: require('../../assets/shop4.jpg'), name: 'EA' },
-    { id: 102, icon: require('../../assets/shop1.jpg'), name: 'RK' },
-    { id: 103, icon: require('../../assets/shop6.jpg'), name: 'Delight' },
-    { id: 104, icon: require('../../assets/shop3.jpg'), name: 'Ecom' },
-    { id: 105, icon: require('../../assets/shop2.jpg'), name: 'Data Foundation' },
-    { id: 106, icon: require('../../assets/shop1.jpg'), name: 'AK' },
-    { id: 107, icon: require('../../assets/shop4.jpg'), name: 'Whale' },
-    { id: 108, icon: require('../../assets/shop3.jpg'), name: 'Cabins' },
-    { id: 109, icon: require('../../assets/shop2.jpg'), name: 'Academy' },
-    { id: 110, icon: require('../../assets/shop6.jpg'), name: 'LiuJo' },
-    { id: 111, icon: require('../../assets/shop6.jpg'), name: 'LiuJo' },
-    { id: 112, icon: require('../../assets/shop6.jpg'), name: 'LiuJo' },
-    { id: 113, icon: require('../../assets/shop6.jpg'), name: 'LiuJo' },
-  ];
-  const totalAppPages = Math.ceil(applications.length / appsPerPage);
-  const startAppIndex = (currentAppPage - 1) * appsPerPage;
-  const displayedApps = applications.slice(startAppIndex, startAppIndex + appsPerPage);
-
-  // Sellers Actions (Toggle & Delete)
-  const handleToggle = (id) => {
-    console.log('Toggle seller status for item:', id);
-  };
-  const handleDelete = (id) => {
-    console.log('Delete seller item:', id);
+  // Helper function to get token from AsyncStorage
+  const getAuthToken = async () => {
+    try {
+      let token = await AsyncStorage.getItem("authToken");
+      return token || "";
+    } catch (error) {
+      console.error("Error reading token:", error);
+      return "";
+    }
   };
 
-  // Sellers 3-dot menu (removed since actions are now inline)
-  const [showOptions, setShowOptions] = useState(false);
-  const [selectedId, setSelectedId] = useState(null);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
-  const iconRefs = useRef({});
+  // Check if token exists on mount. If not, redirect to the login screen.
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await getAuthToken();
+      if (!token) {
+        navigation.navigate("Login");
+      }
+    };
+    checkAuth();
+  }, [navigation]);
 
-  // State for Application Popup Modal
-  const [showAppPopup, setShowAppPopup] = useState(false);
-  const [selectedApp, setSelectedApp] = useState(null);
+  // Fetch vendors from API on component mount
+  useEffect(() => {
+    const fetchVendors = async () => {
+      try {
+        const response = await fetch("http://192.168.28.234:8000/api/v1/vendors/vendors/", {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await response.json();
+        const vendorsData = data.results || data;
+        const formattedData = vendorsData.map((vendor) => ({
+          id: vendor.id || vendor.username,
+          name: vendor.username,
+          email: vendor.user_email,
+          phone: vendor.phone_number,
+          // Map shop details using the Django REST response fields
+          shop: {
+            shopname: vendor.shop_name,
+            shopaddress: vendor.shop_address,
+            shop_description: vendor.shop_description,
+          },
+          status: vendor.status, // "Approved", "Pending", or "Declined"
+        }));
+        setVendorList(formattedData);
+      } catch (error) {
+        console.error("Error fetching vendors:", error);
+      }
+    };
 
-  const measureIcon = (id) => {
-    iconRefs.current[id]?.measureInWindow((x, y, width, height) => {
-      setMenuPosition({ x, y, width, height });
-      setSelectedId(id);
-      setShowOptions(true);
-    });
+    fetchVendors();
+  }, []);
+
+  // Filter vendors based on activeFilter
+  const filteredVendors = vendorList.filter((vendor) => vendor.status === activeFilter);
+
+  const totalPages = Math.ceil(filteredVendors.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const displayedVendors = filteredVendors.slice(startIndex, startIndex + itemsPerPage);
+
+  // For Pending vendors: Approve and Reject handlers
+  const handleApprove = async (vendorId, event) => {
+    event.stopPropagation();
+    const vendor = vendorList.find((v) => v.id === vendorId);
+    if (!vendor) return;
+    try {
+      const token = "your-hardcoded-token-or-dynamic-token";
+      const response = await fetch(
+        `http://192.168.28.234:8000/api/v1/vendors/${vendorId}/toggle-status/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: "Approved" }),
+        }
+      );
+      if (response.ok) {
+        const updatedData = await response.json();
+        const updatedVendors = vendorList.map((v) =>
+          v.id === vendorId ? { ...v, status: updatedData.status } : v
+        );
+        setVendorList(updatedVendors);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to approve vendor", response.status, errorData);
+        Alert.alert("Error", "Failed to approve vendor.");
+      }
+    } catch (error) {
+      console.error("Error approving vendor:", error);
+      Alert.alert("Error", "An error occurred while approving vendor.");
+    }
   };
 
-  // Render Sellers Tab with updated columns
-  const renderSellersTab = () => {
-    return (
-      <>
-        <View style={styles.listHeader}>
-          <Text style={[styles.listHeaderText, { flex: 1 }]}>Seller</Text>
-          <Text style={[styles.listHeaderText, { flex: 1 }]}>Contact</Text>
-          <Text style={[styles.listHeaderText, { flex: 1 }]}>Shop</Text>
-          <Text style={[styles.listHeaderText, { flex: 1 }]}>Shop Description</Text>
-          <Text style={[styles.listHeaderText, { flex: 1 }]}>Stock</Text>
-          <Text style={[styles.listHeaderText, { flex: 1 }]}>Status</Text>
-          <Text style={[styles.listHeaderText, { flex: 1 }]}>Action</Text>
-        </View>
-
-        {displayedSellers.map((seller) => (
-          <View key={seller.id} style={styles.sellerRow}>
-            {/* Seller Column: only name */}
-            <View style={[styles.cell, { flex: 1 }]}>
-              <Text style={styles.cellText}>{seller.website}</Text>
-            </View>
-
-            {/* Contact Column: phone and email */}
-            <View style={[styles.cell, { flex: 1 }]}>
-              <Text style={styles.cellText}>{seller.phone}</Text>
-              <Text style={[styles.cellText, { fontSize: 13 }]}>{seller.email}</Text>
-            </View>
-
-            {/* Shop Column: shop name (website) and address (location) */}
-            <View style={[styles.cell, { flex: 1 }]}>
-              <Text style={styles.cellText}>{seller.name}</Text>
-              <Text style={[styles.cellText, { fontSize: 13}]}>{seller.location}</Text>
-            </View>
-
-            {/* Shop Description Column */}
-            <View style={[styles.cell, { flex: 1 }]}>
-              <Text style={styles.cellText}>{seller.shopDescription}</Text>
-            </View>
-
-            {/* Stock Column */}
-            <View style={[styles.cell, { flex: 1, alignItems: 'center' }]}>
-              <Text style={styles.cellText}>{seller.stock}</Text>
-            </View>
-
-            {/* Status Column */}
-            <View style={[styles.cell, { flex: 1, alignItems: 'center' }]}>
-              <Text style={styles.statusText}>{seller.status}</Text>
-            </View>
-
-            {/* Action Column: Toggle and Delete icons */}
-            <View style={[styles.cell, { flex: 1, flexDirection: 'row', justifyContent: 'space-around' }]}>
-              <TouchableOpacity onPress={() => handleToggle(seller.id)}>
-                <Ionicons name="toggle-outline" size={20} color="#007BFF" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDelete(seller.id)}>
-                <Ionicons name="trash-outline" size={20} color="#FF0000" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
-      </>
-    );
+  const handleReject = async (vendorId, event) => {
+    event.stopPropagation();
+    const vendor = vendorList.find((v) => v.id === vendorId);
+    if (!vendor) return;
+    try {
+      const token = "your-hardcoded-token-or-dynamic-token";
+      const response = await fetch(
+        `http://192.168.28.234:8000/api/v1/vendors/${vendorId}/toggle-status/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: "Declined" }),
+        }
+      );
+      if (response.ok) {
+        const updatedData = await response.json();
+        const updatedVendors = vendorList.map((v) =>
+          v.id === vendorId ? { ...v, status: updatedData.status } : v
+        );
+        setVendorList(updatedVendors);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to reject vendor", response.status, errorData);
+        Alert.alert("Error", "Failed to reject vendor.");
+      }
+    } catch (error) {
+      console.error("Error rejecting vendor:", error);
+      Alert.alert("Error", "An error occurred while rejecting vendor.");
+    }
   };
 
-  // Render Applications Tab with clickable cards that show the popup modal
-  const renderApplicationsTab = () => {
-    return (
-      <View style={styles.applicationsGrid}>
-        {displayedApps.map((app) => (
-          <TouchableOpacity
-            key={app.id}
-            style={styles.appCard}
-            onPress={() => {
-              console.log('App card clicked:', app.id);
-              setSelectedApp(app);
-              setShowAppPopup(true);
-            }}
-          >
-            <Image
-              source={app.icon ? app.icon : require('../../assets/default.png')}
-              style={styles.appIcon}
-            />
-            <Text style={styles.appName}>{app.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    );
+  // Toggle vendor status for non-pending vendors (toggle between Approved and Declined)
+  const handleToggleStatus = async (vendorId, event) => {
+    event.stopPropagation();
+    const vendor = vendorList.find((v) => v.id === vendorId);
+    if (!vendor) return;
+    const newStatus = vendor.status === "Approved" ? "Declined" : "Approved";
+    try {
+      const token = "your-hardcoded-token-or-dynamic-token";
+      const response = await fetch(
+        `http://192.168.28.234:8000/api/v1/vendors/${vendorId}/toggle-status/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
+      if (response.ok) {
+        const updatedData = await response.json();
+        const updatedVendors = vendorList.map((v) =>
+          v.id === vendorId ? { ...v, status: updatedData.status } : v
+        );
+        setVendorList(updatedVendors);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to toggle status", response.status, errorData);
+        Alert.alert("Error", "Failed to update vendor status.");
+      }
+    } catch (error) {
+      console.error("Error toggling vendor status:", error);
+      Alert.alert("Error", "An error occurred while updating vendor status.");
+    }
   };
 
-  // "Page X of Y" with "Previous" & "Next" for Sellers
-  const renderSellersPagination = () => {
-    return (
-      <View style={styles.paginationBar}>
-        <Text style={styles.pageInfoText}>
-          Page {currentSellersPage} of {totalSellersPages}
-        </Text>
-        <View style={styles.paginationButtons}>
-          <TouchableOpacity
-            style={[styles.prevButton, currentSellersPage === 1 && styles.disabledButton]}
-            onPress={() => {
-              if (currentSellersPage > 1) {
-                setCurrentSellersPage((prev) => prev - 1);
-              }
-            }}
-            disabled={currentSellersPage === 1}
-          >
-            <Text style={[styles.prevButtonText, currentSellersPage === 1 && styles.disabledText]}>
-              Previous
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.nextButton, currentSellersPage === totalSellersPages && styles.disabledButton]}
-            onPress={() => {
-              if (currentSellersPage < totalSellersPages) {
-                setCurrentSellersPage((prev) => prev + 1);
-              }
-            }}
-            disabled={currentSellersPage === totalSellersPages}
-          >
-            <Text style={[styles.nextButtonText, currentSellersPage === totalSellersPages && styles.disabledText]}>
-              Next
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
+  // When delete is pressed, show the alert modal (stop propagation so row doesn't trigger navigation)
+  const handleDeletePress = (vendor, event) => {
+    event.stopPropagation();
+    setSelectedVendor(vendor);
+    setShowDeleteModal(true);
   };
 
-  // "Page X of Y" with "Previous" & "Next" for Applications
-  const renderApplicationsPagination = () => {
-    return (
-      <View style={styles.paginationBar}>
-        <Text style={styles.pageInfoText}>
-          Page {currentAppPage} of {totalAppPages}
-        </Text>
-        <View style={styles.paginationButtons}>
-          <TouchableOpacity
-            style={[styles.prevButton, currentAppPage === 1 && styles.disabledButton]}
-            onPress={() => {
-              if (currentAppPage > 1) {
-                setCurrentAppPage((prev) => prev - 1);
-              }
-            }}
-            disabled={currentAppPage === 1}
-          >
-            <Text style={[styles.prevButtonText, currentAppPage === 1 && styles.disabledText]}>
-              Previous
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.nextButton, currentAppPage === totalAppPages && styles.disabledButton]}
-            onPress={() => {
-              if (currentAppPage < totalAppPages) {
-                setCurrentAppPage((prev) => prev + 1);
-              }
-            }}
-            disabled={currentAppPage === totalAppPages}
-          >
-            <Text style={[styles.nextButtonText, currentAppPage === totalAppPages && styles.disabledText]}>
-              Next
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
+  const handleConfirmDelete = async () => {
+    if (selectedVendor) {
+      try {
+        const token = await getAuthToken();
+        if (!token) {
+          Alert.alert("Unauthorized", "Please login again.");
+          navigation.navigate("Login");
+          return;
+        }
+        const response = await fetch(
+          `http://192.168.28.234:8000/api/v1/vendors/${selectedVendor.id}/delete/`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
+        if (response.ok) {
+          const updatedVendors = vendorList.filter((v) => v.id !== selectedVendor.id);
+          setVendorList(updatedVendors);
+          setShowDeleteModal(false);
+          setSelectedVendor(null);
+          if (currentPage > Math.ceil(updatedVendors.length / itemsPerPage)) {
+            setCurrentPage(Math.ceil(updatedVendors.length / itemsPerPage));
+          }
+          Alert.alert("Success", "Vendor deleted successfully.");
+        } else {
+          const errorData = await response.json();
+          console.error("Failed to delete vendor", response.status, errorData);
+          Alert.alert("Error", "Failed to delete vendor.");
+        }
+      } catch (error) {
+        console.error("Error deleting vendor:", error);
+        Alert.alert("Error", "An error occurred while deleting vendor.");
+      }
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setSelectedVendor(null);
+  };
+
+  // Pagination handlers
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  // Navigate to vendor details when a row is tapped
+  const handleRowPress = (vendor) => {
+    navigation.navigate("VendorDetails", { vendor });
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Sidebar */}
       <View style={styles.sidebar}>
-        <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate('AdminDashboard')}>
+        <TouchableOpacity
+          style={styles.sidebarIconContainer}
+          onPress={() => navigation.navigate("AdminDashboard")}
+        >
           <Ionicons name="grid-outline" size={24} color="#fff" />
           <Text style={styles.sidebarIconLabel}>Dashboard</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate('Customers')}>
+        <TouchableOpacity
+          style={styles.sidebarIconContainer}
+          onPress={() => navigation.navigate("Customers")}
+        >
           <Ionicons name="people-outline" size={24} color="#fff" />
           <Text style={styles.sidebarIconLabel}>Customers</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate('Vendors')}>
+        <TouchableOpacity
+          style={styles.sidebarIconContainer}
+          onPress={() => navigation.navigate("Vendors")}
+        >
           <Ionicons name="storefront-outline" size={24} color="#fff" />
           <Text style={styles.sidebarIconLabel}>Vendors</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate('Reports')}>
+        <TouchableOpacity
+          style={styles.sidebarIconContainer}
+          onPress={() => navigation.navigate("Reports")}
+        >
           <Ionicons name="document-text-outline" size={24} color="#fff" />
           <Text style={styles.sidebarIconLabel}>Reports</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate('Orders')}>
+        <TouchableOpacity
+          style={styles.sidebarIconContainer}
+          onPress={() => navigation.navigate("Orders")}
+        >
           <Ionicons name="cart-outline" size={24} color="#fff" />
           <Text style={styles.sidebarIconLabel}>Orders</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate('Settings')}>
+        <TouchableOpacity
+          style={styles.sidebarIconContainer}
+          onPress={() => navigation.navigate("Settings")}
+        >
           <Ionicons name="settings-outline" size={24} color="#fff" />
           <Text style={styles.sidebarIconLabel}>Settings</Text>
         </TouchableOpacity>
@@ -341,264 +311,560 @@ export default function SellerProfiles() {
 
       {/* Main Content */}
       <View style={styles.mainContent}>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContainer}>
+          {/* Header (Title & Tabs) */}
           <View style={styles.headerContainer}>
-            <Text style={styles.headerTitle}>Seller Profiles</Text>
+            <Text style={styles.headerTitle}>Vendors ({filteredVendors.length})</Text>
           </View>
 
-          {/* Tabs */}
-          <View style={styles.tabsContainer}>
-            <TouchableOpacity style={styles.tabButton} onPress={() => setActiveTab('Sellers')}>
-              <Text style={[styles.tabText, activeTab === 'Sellers' && styles.activeTabText]}>
-                Sellers
-              </Text>
-              {activeTab === 'Sellers' && <View style={styles.activeIndicator} />}
+          {/* Tabs Row */}
+          <View style={styles.tabsRow}>
+            <TouchableOpacity
+              style={[styles.tabButton, activeFilter === "Approved" && styles.activeTab]}
+              onPress={() => {
+                setActiveFilter("Approved");
+                setCurrentPage(1);
+              }}
+            >
+              <Text style={styles.tabButtonText}>Approved</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.tabButton} onPress={() => setActiveTab('Applications')}>
-              <Text style={[styles.tabText, activeTab === 'Applications' && styles.activeTabText]}>
-                Applications
-              </Text>
-              {activeTab === 'Applications' && <View style={styles.activeIndicator} />}
+            <TouchableOpacity
+              style={[styles.tabButton, activeFilter === "Pending" && styles.activeTab]}
+              onPress={() => {
+                setActiveFilter("Pending");
+                setCurrentPage(1);
+              }}
+            >
+              <Text style={styles.tabButtonText}>Pending</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabButton, activeFilter === "Declined" && styles.activeTab]}
+              onPress={() => {
+                setActiveFilter("Declined");
+                setCurrentPage(1);
+              }}
+            >
+              <Text style={styles.tabButtonText}>Declined</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Render Content */}
-          {activeTab === 'Sellers' ? renderSellersTab() : renderApplicationsTab()}
+          {/* Table Header */}
+          <View style={styles.tableHeader}>
+            <Text style={[styles.headerCell, { flex: 3, borderRightWidth: 1, borderRightColor: "transparent", paddingRight: 10 }]}>
+              Name
+            </Text>
+            <Text style={[styles.headerCell, { flex: 4, borderRightWidth: 1, borderRightColor: "transparent", paddingRight: 10 }]}>
+              Contact
+            </Text>
+            <Text
+              style={[
+                styles.headerCell,
+                {
+                  flex: 3,
+                  borderRightWidth: 1,
+                  borderRightColor: "transparent",
+                  paddingRight: 10,
+                  marginRight: 20,
+                },
+              ]}
+            >
+              Shop
+            </Text>
+            <Text style={[styles.headerCell, { flex: 3, borderRightWidth: 1, borderRightColor: "transparent", paddingRight: 10 }]}>
+              Description
+            </Text>
+            <Text style={[styles.headerCell, { flex: 2, borderRightWidth: 1, borderRightColor: "transparent", paddingRight: 10 }]}>
+              Status
+            </Text>
+            <Text style={[styles.headerCell, { flex: 2 }]}>Action</Text>
+          </View>
+
+          {/* Table Body */}
+          {displayedVendors.map((vendor) => (
+            <Pressable
+              key={vendor.id}
+              style={({ hovered }) => [
+                styles.tableRow,
+                hovered && styles.tableRowHovered,
+              ]}
+              onPress={() => handleRowPress(vendor)}
+              android_ripple={{ color: "#eee" }}
+            >
+              <View style={[styles.rowCell, { flex: 3, borderRightWidth: 1, borderRightColor: "transparent", paddingRight: 10 }]}>
+                <Text style={styles.primaryText}>{vendor.name}</Text>
+              </View>
+              <View
+                style={[
+                  styles.rowCell,
+                  {
+                    flex: 4,
+                    borderRightWidth: 1,
+                    borderRightColor: "transparent",
+                    paddingRight: 10,
+                  },
+                ]}
+              >
+                <Text style={styles.primaryText}>{vendor.email}</Text>
+                <Text style={[styles.primaryText, { marginTop: 4 }]}>{vendor.phone}</Text>
+              </View>
+              <View
+                style={[
+                  styles.rowCell,
+                  {
+                    flex: 3,
+                    borderRightWidth: 1,
+                    borderRightColor: "transparent",
+                    paddingRight: 10,
+                    marginRight: 20,
+                  },
+                ]}
+              >
+                {vendor.shop ? (
+                  <>
+                    <Text style={styles.primaryText}>{vendor.shop.shopname}</Text>
+                    <Text style={[styles.primaryText, { marginTop: 4 }]}>{vendor.shop.shopaddress}</Text>
+                  </>
+                ) : (
+                  <Text style={styles.primaryText}>N/A</Text>
+                )}
+              </View>
+              <View
+                style={[
+                  styles.rowCell,
+                  { flex: 3, borderRightWidth: 1, borderRightColor: "transparent", paddingRight: 10 },
+                ]}
+              >
+                <Text style={styles.primaryText}>
+                  {vendor.shop && vendor.shop.shop_description ? vendor.shop.shop_description : ""}
+                </Text>
+              </View>
+              <View
+                style={[
+                  styles.rowCell,
+                  { flex: 2, borderRightWidth: 1, borderRightColor: "transparent", paddingRight: 10 },
+                ]}
+              >
+                <View style={styles.statusContainer}>
+                  <View
+                    style={[
+                      styles.statusIndicator,
+                      vendor.status === "Approved"
+                        ? styles.approvedIndicator
+                        : vendor.status === "Pending"
+                        ? styles.pendingIndicator
+                        : styles.declinedIndicator,
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      styles.statusLabel,
+                      vendor.status === "Approved"
+                        ? styles.approvedText
+                        : vendor.status === "Pending"
+                        ? styles.pendingText
+                        : styles.declinedText,
+                    ]}
+                  >
+                    {vendor.status}
+                  </Text>
+                </View>
+              </View>
+              <View style={[styles.rowCell, { flex: 2, flexDirection: "row", alignItems: "center" }]}>
+                {vendor.status === "Pending" ? (
+                  <>
+                    <TouchableOpacity onPress={(e) => handleApprove(vendor.id, e)} style={styles.actionIcon}>
+                      <Ionicons name="checkmark-circle-outline" size={24} color="#388E3C" />
+                      <Text style={styles.secondaryText}>Approve</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={(e) => handleReject(vendor.id, e)} style={[styles.actionIcon, { marginLeft: 20 }]}>
+                      <Ionicons name="close-circle-outline" size={24} color="#D32F2F" />
+                      <Text style={styles.secondaryText}>Reject</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <>
+                    <TouchableOpacity onPress={(e) => handleToggleStatus(vendor.id, e)} style={styles.actionIcon}>
+                      <Ionicons
+                        name={vendor.status === "Approved" ? "toggle" : "toggle-outline"}
+                        size={30}
+                        color={vendor.status === "Approved" ? "#f9622c" : "#ccc"}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={(e) => handleDeletePress(vendor, e)} style={[styles.actionIcon, { marginLeft: 15 }]}>
+                      <Ionicons name="trash-outline" size={20} color="#280300" />
+                    </TouchableOpacity>
+                  </>
+                )}
+              </View>
+            </Pressable>
+          ))}
         </ScrollView>
 
         {/* Pagination */}
-        {activeTab === 'Sellers' && totalSellersPages > 1 && renderSellersPagination()}
-        {activeTab === 'Applications' && totalAppPages > 1 && renderApplicationsPagination()}
-      </View>
+        <View style={styles.paginationContainer}>
+          <Text style={styles.paginationText}>
+            Page {currentPage} of {totalPages}
+          </Text>
+          <View style={styles.paginationButtonsContainer}>
+            <TouchableOpacity
+              style={styles.paginationButtonBlack}
+              onPress={handlePrevious}
+              disabled={currentPage === 1}
+            >
+              <Text style={styles.paginationButtonTextWhite}>Previous</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.paginationButtonWhite}
+              onPress={handleNext}
+              disabled={currentPage === totalPages}
+            >
+              <Text style={styles.paginationButtonTextBlack}>Next</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-      {/* Application Popup Modal */}
-      <AppPopupModal
-        visible={showAppPopup}
-        onClose={() => setShowAppPopup(false)}
-        app={selectedApp}
-      />
-    </SafeAreaView>
+        {/* Deletion Alert Modal */}
+        <Modal transparent={true} visible={showDeleteModal} animationType="fade">
+          <View style={styles.alertContainer}>
+            <View style={styles.alertBox}>
+              <Text style={styles.alertTitle}>Confirm Delete</Text>
+              {selectedVendor && (
+                <Text style={styles.alertText}>
+                  Are you sure you want to delete {selectedVendor.name}?
+                </Text>
+              )}
+              <View style={styles.alertButtonContainer}>
+                <TouchableOpacity style={styles.alertButton} onPress={handleConfirmDelete}>
+                  <Text style={styles.alertButtonText}>Yes</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.alertButton} onPress={handleCancelDelete}>
+                  <Text style={styles.alertButtonText}>No</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </View>
   );
-}
+};
+
+export default VendorsScreen;
 
 const styles = StyleSheet.create({
-  // Layout
   container: {
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#f9f9f9',
+    flexDirection: "row",
+    backgroundColor: "#f9f9f9",
+    letterSpacing: 0.1,
   },
   sidebar: {
     width: 80,
-    backgroundColor: '#F9622C',
+    backgroundColor: "#F9622C",
     paddingVertical: 20,
     borderRightWidth: 1,
-    borderRightColor: '#ebedf0',
-    alignItems: 'center',
+    borderRightColor: "#ebedf0",
+    alignItems: "center",
   },
   sidebarIconContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 20,
   },
   sidebarIconLabel: {
     marginTop: 4,
     fontSize: 10,
-    color: '#fff',
+    color: "#fff",
   },
   mainContent: {
     flex: 1,
-    position: 'relative',
+    position: "relative",
+  },
+  scrollContent: {
+    flex: 1,
   },
   scrollContainer: {
-    paddingHorizontal: 20,
+    padding: 20,
     paddingBottom: 80,
   },
-
-  // Header
   headerContainer: {
-    marginTop: 16,
-    marginBottom: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 0,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#3a3a3a',
-    marginBottom: 8,
+    fontWeight: "bold",
+    color: "#3a3a3a",
+    ontFamily: "sans serif",
   },
-
-  // Tabs
-  tabsContainer: {
-    flexDirection: 'row',
+  topRightButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  exportButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderColor: "#280300",
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginRight: 10,
+  },
+  addBookingButton: {
+    backgroundColor: "#F9622C",
+    borderRadius: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  addBookingButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    ontFamily: "sans serif",
+  },
+  tabsRow: {
+    flexDirection: "row",
     marginBottom: 10,
   },
   tabButton: {
-    marginRight: 20,
-    position: 'relative',
+    marginRight: 10,
+    borderRadius: 1,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
   },
-  tabText: {
-    fontSize: 16,
-    color: '#280300',
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#f9622c",
   },
-  activeTabText: {
-    color: '#280300',
-    fontWeight: '500',
+  tabButtonText: {
+    color: "#280300",
+    fontSize: 14,
+    ontFamily: "sans serif",
   },
-  activeIndicator: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: -2,
-    height: 2,
-    backgroundColor: '#f9622c',
-  },
-
-  // Sellers Table Header and Rows
-  listHeader: {
-    flexDirection: 'row',
+  tableHeader: {
+    flexDirection: "row",
     borderBottomWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     paddingBottom: 10,
     marginBottom: 6,
-    alignItems: 'left',
+    alignItems: "center",
   },
-  listHeaderText: {
-    color: '#280300',
+  headerCell: {
+    color: "#280300",
     fontSize: 14,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "500",
+    textAlign: "left",
+    ontFamily: "sans serif",
   },
-  sellerRow: {
-    flexDirection: 'row',
-    paddingVertical: 15,
+  tableRow: {
+    flexDirection: "row",
+    paddingVertical: 7,
     borderBottomWidth: 1,
-    borderColor: '#f0f0f0',
-    alignItems: 'center',
+    borderColor: "#f0f0f0",
   },
-  cell: {
-    justifyContent: 'center',
-    paddingHorizontal: 4,
+  tableRowHovered: {
+    backgroundColor: "#eee",
   },
-  cellText: {
+  rowCell: {
+    justifyContent: "center",
+  },
+  primaryText: {
+    color: "#5B5B5B",
     fontSize: 13,
-    color: '#f9622c',
-    fontWeight: '500',
-    marginTop:2,
+    fontWeight: "600",
+    letterSpacing: 0.3,
   },
-  statusText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#fff',
-    backgroundColor: '#388E3C',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+  secondaryText: {
+    color: "#f9622c",
+    fontSize: 13,
+    marginTop: 2,
+    letterSpacing: 0.1,
+  },
+  statusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  statusIndicator: {
+    width: 8,
+    height: 8,
     borderRadius: 4,
-    textAlign: 'center',
+    marginRight: 5,
   },
-
-  // Applications Grid
-  applicationsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+  approvedIndicator: {
+    backgroundColor: "#388E3C",
   },
-  appCard: {
-    width: '14%',
-    aspectRatio: 1,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    margin: '1%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+  pendingIndicator: {
+    backgroundColor: "#F57C00",
   },
-  appIcon: {
-    width: 60,
-    height: 60,
-    resizeMode: 'contain',
+  declinedIndicator: {
+    backgroundColor: "#D32F2F",
   },
-  appName: {
-    fontSize: 12,
-    color: '#280300',
-    marginTop: 4,
-    textAlign: 'center',
+  statusLabel: {
+    fontSize: 14,
+    fontWeight: "400",
+    letterSpacing: 0.1,
   },
-
-  // Pagination Bar
-  paginationBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
+  approvedText: {
+    color: "#388E3C",
+  },
+  pendingText: {
+    color: "#F57C00",
+  },
+  declinedText: {
+    color: "#D32F2F",
+  },
+  actionIcon: {
+    marginLeft: 0,
+  },
+  paginationContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 10,
     borderTopWidth: 1,
-    borderColor: '#ddd',
-    paddingHorizontal: 10,
-    paddingVertical: 1,
-    bottom: 10,
+    borderColor: "#ddd",
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
   },
-  pageInfoText: {
-    color: '#280300',
+  paginationText: {
+    color: "#280300",
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "bold",
   },
-  paginationButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  paginationButtonsContainer: {
+    flexDirection: "row",
+    marginLeft: "auto",
   },
-  prevButton: {
+  paginationButtonBlack: {
+    marginLeft: 10,
+    borderRadius: 5,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderWidth: 1,
-    borderColor: '#f9622c',
-    borderRadius: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
+    borderColor: "#f9622c",
   },
-  prevButtonText: {
-    color: '#f9622c',
-    fontSize: 14,
-    fontWeight: '500',
+  paginationButtonTextWhite: {
+    color: "#f9622c",
+    fontSize: 16,
+    fontWeight: "bold",
   },
-  nextButton: {
+  paginationButtonWhite: {
+    marginLeft: 10,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderWidth: 1,
-    borderColor: '#000',
-    borderRadius: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderColor: "#000",
   },
-  nextButtonText: {
-    color: '#000',
-    fontSize: 14,
-    fontWeight: '500',
+  paginationButtonTextBlack: {
+    color: "#000",
+    fontSize: 16,
+    fontWeight: "bold",
   },
-  disabledButton: {
-    opacity: 0.3,
+  alertContainer: {
+    position: "absolute",
+    top: -10,
+    left: 0,
+    right: 0,
+    paddingTop: 10,
+    alignItems: "center",
   },
-  disabledText: {
-    color: '#999',
-  },
-
-  // 3-Dots Menu for Sellers (removed actions in favor of inline toggle and delete)
-  optionsMenu: {
-    position: 'absolute',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingVertical: 10,
-    width: 140,
-    shadowColor: '#000',
+  alertBox: {
+    width: "50%",
+    backgroundColor: "#fff",
+    borderRadius: 3,
+    padding: 25,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 0,
+  },
+  alertTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#280300",
+    marginBottom: 5,
+  },
+  alertText: {
+    fontSize: 16,
+    color: "#280300",
+    marginBottom: 10,
+  },
+  alertButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  alertButton: {
+    marginLeft: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    backgroundColor: "#F9622C",
+    borderRadius: 4,
+  },
+  alertButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "85%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 5,
   },
-  optionButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 10,
+    color: "#f9622c",
   },
-  optionText: {
+  modalText: {
+    fontSize: 16,
+    marginBottom: 10,
+    color: "#f9622c",
+    textAlign: "center",
+  },
+  modalSubText: {
     fontSize: 14,
-    color: '#280300',
+    marginBottom: 5,
+    color: "#280300",
+    textAlign: "center",
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  modalButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    backgroundColor: "#F9622C",
+    borderRadius: 6,
+    paddingVertical: 10,
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });

@@ -420,7 +420,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: "#f9f9f9"
+    backgroundColor: "#f9f9f9",
+    fontFamily:"poppins"
   },
   sidebar: {
     width: 80,
@@ -527,12 +528,12 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   primaryText: {
-    color: "#f9622c",
+    color: "#5B5B5B",
     fontSize: 13,
-    fontWeight: "600"
+    fontWeight: "500"
   },
   secondaryText: {
-    color: "#280300",
+    color: "#f9622c",
     fontSize: 13,
     marginTop: 2,
   },
