@@ -63,7 +63,6 @@ const AdminDashboard = () => {
     });
   };
   
-
   return (
     <View style={[styles.container, { flexDirection: isSmallDevice ? "column" : "row" }]}>
       {/* Sidebar - only for larger devices */}
@@ -73,22 +72,24 @@ const AdminDashboard = () => {
             <Ionicons name="grid-outline" size={24} color="#fff" />
             <Text style={styles.sidebarIconLabel}>Dashboard</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate("Customers")}>
-            <Ionicons name="people-outline" size={24} color="#fff" />
-            <Text style={styles.sidebarIconLabel}>Customers</Text>
+          <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate("Orders")}>
+            <Ionicons name="cart-outline" size={24} color="#fff" />
+            <Text style={styles.sidebarIconLabel}>Orders</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate("Vendors")}>
             <Ionicons name="storefront-outline" size={24} color="#fff" />
             <Text style={styles.sidebarIconLabel}>Vendors</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate("Customers")}>
+            <Ionicons name="people-outline" size={24} color="#fff" />
+            <Text style={styles.sidebarIconLabel}>Customers</Text>
+          </TouchableOpacity>
+          
           <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate("Reports")}>
             <Ionicons name="document-text-outline" size={24} color="#fff" />
             <Text style={styles.sidebarIconLabel}>Reports</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate("Orders")}>
-            <Ionicons name="cart-outline" size={24} color="#fff" />
-            <Text style={styles.sidebarIconLabel}>Orders</Text>
-          </TouchableOpacity>
+          
           <TouchableOpacity style={styles.sidebarIconContainer} onPress={() => navigation.navigate("Settings")}>
             <Ionicons name="settings-outline" size={24} color="#fff" />
             <Text style={styles.sidebarIconLabel}>Settings</Text>
