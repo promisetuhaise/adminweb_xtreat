@@ -13,8 +13,11 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+  import axios from 'axios';
 
-const API_URL = "http://192.168.28.234:8000/api/v1/adminweb/admin/login/"; // Replace with your actual API endpoint
+
+const API_URL = "https://api-xtreative.onrender.com/api/v1/admins/login/"
+
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -36,6 +39,8 @@ const LoginScreen = () => {
   }, [navigation]);
 
   // Validation schema with Yup
+
+  // Validation schema with Yup
   const validationSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string()
@@ -44,41 +49,29 @@ const LoginScreen = () => {
   });
 
   // Handle login submission
+
   const handleLogin = async (values) => {
     try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
+      const { data } = await axios.post(API_URL, {
+        email: values.email.trim(),
+        password: values.password,
       });
-      const data = await response.json();
-
-      if (response.ok && data.token) {
-        // Ensure the token is prefixed with "Token "
-        const tokenWithPrefix = data.token.startsWith("Token ")
-          ? data.token
-          : "Token " + data.token;
-        console.log("Storing token:", tokenWithPrefix);
-
-        // Save token and super admin flag in AsyncStorage
-        await AsyncStorage.setItem("authToken", tokenWithPrefix);
-        await AsyncStorage.setItem("isSuperAdmin", JSON.stringify(data.is_superadmin));
-        setLoginError("");
-
-        // Navigate to the admin dashboard
+  
+      console.log("🔹 Response Data:", data);
+  
+      // Update to match the backend response structure
+      if (data.access && data.refresh) {
+        await AsyncStorage.setItem("authToken", "Token " + data.access); // Store access token
         navigation.navigate("AdminDashboard");
       } else {
-        // Display error provided by the API, if any
-        setLoginError(data.message || data.detail || "Invalid credentials. Please try again.");
+        setLoginError(data.error || "Invalid credentials.");
       }
     } catch (error) {
-      console.log("Login error:", error);
-      setLoginError("Something went wrong. Please try again later.");
+      console.error("🔴 Axios Login Error:", error.response?.data || error.message);
+      setLoginError(error.response?.data?.error || "Something went wrong.");
     }
   };
-
+    
   return (
     <View style={styles.container}>
       {/* Header with Orange background to match dashboard colors */}
