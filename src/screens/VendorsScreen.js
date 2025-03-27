@@ -54,7 +54,7 @@ const VendorsScreen = () => {
   useEffect(() => {
     const fetchVendors = async () => {
       try {
-        const response = await fetch("http://192.168.28.234:8000/api/v1/vendors/vendors/", {
+        const response = await fetch("https://api-xtreative.onrender.com/vendors/api/v1/", {
           headers: {
             "Content-Type": "application/json",
           },
