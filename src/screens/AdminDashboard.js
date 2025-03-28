@@ -144,7 +144,7 @@ const AdminDashboard = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.sidebarIconContainer}
-            onPress={() => navigation.navigate("Orders")}
+            onPress={() => navigation.navigate("OrdersScreen")}
           >
             <Ionicons name="cart-outline" size={24} color="#fff" />
             <Text style={styles.sidebarIconLabel}>Orders</Text>
@@ -254,7 +254,7 @@ const AdminDashboard = () => {
                 style={styles.menuItem}
                 onPress={() => {
                   setMenuVisible(false);
-                  navigation.navigate("Orders");
+                  navigation.navigate("OrdersScreen");
                 }}
               >
                 <Ionicons name="cart-outline" size={24} color="#280300" />

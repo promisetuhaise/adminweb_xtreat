@@ -11,7 +11,7 @@ import VendorDetails from './src/screens/vendorDetails';
 // import ChatScreen from './src/screens/ChatScreen';
 // import AnalyticsScreen from './src/screens/AnalyticsScreen';
 // import ProductsScreen from './src/screens/ProductsScreen';
-// import OrdersScreen from './src/screens/OrdersScreen';
+import OrdersScreen from './src/screens/OrdersScreen';
 // import AddProduct from "./src/screens/AddProduct";
 // import ProductList from "./src/screens/ProductList";
 // import TransactionsScreen from "./src/screens/TransactionsScreen";
@@ -49,6 +49,7 @@ export default function App() {
          <Stack.Screen name="VendorDetails" component={VendorDetails} />
          <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
          <Stack.Screen name="WalletScreen" component={WalletScreen} />
+         <Stack.Screen name="OrdersScreen" component={OrdersScreen} />
 
 
 
