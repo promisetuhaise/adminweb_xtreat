@@ -25,8 +25,8 @@ import VendorDetails from './src/screens/vendorDetails';
 // import AddEmployee from "./src/screens/AddEmployee";
 // import EmployeeList from "./src/screens/EmployeeList";
 // import ApprovedLoans from "./src/screens/ApprovedLoans";
-// import SettingsScreen from "./src/screens/SettingsScreen";
-// import WalletScreen from "./src/screens/WalletScreen";
+import SettingsScreen from "./src/screens/SettingsScreen";
+import WalletScreen from "./src/screens/WalletScreen";
 // import DepositScreen from "./src/screens/DepositScreen";
 // import WithdrawScreen from "./src/screens/WithdrawScreen";
 // import TransactionHistoryScreen from "./src/screens/TransactionHistoryScreen";
@@ -47,6 +47,11 @@ export default function App() {
          <Stack.Screen name="Customers" component={Customers} />
          <Stack.Screen name="Vendors" component={Vendors} />
          <Stack.Screen name="VendorDetails" component={VendorDetails} />
+         <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
+         <Stack.Screen name="WalletScreen" component={WalletScreen} />
+
+
+
         
         
   

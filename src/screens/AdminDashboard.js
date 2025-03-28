@@ -174,7 +174,7 @@ const AdminDashboard = () => {
 
           <TouchableOpacity
             style={styles.sidebarIconContainer}
-            onPress={() => navigation.navigate("Wallet")}
+            onPress={() => navigation.navigate("WalletScreen")}
           >
             <Ionicons name="wallet-outline" size={24} color="#fff" />
             <Text style={styles.sidebarIconLabel}>Wallet</Text>
@@ -182,7 +182,7 @@ const AdminDashboard = () => {
 
           <TouchableOpacity
             style={styles.sidebarIconContainer}
-            onPress={() => navigation.navigate("Settings")}
+            onPress={() => navigation.navigate("SettingsScreen")}
           >
             <Ionicons name="settings-outline" size={24} color="#fff" />
             <Text style={styles.sidebarIconLabel}>Settings</Text>
@@ -264,7 +264,7 @@ const AdminDashboard = () => {
                 style={styles.menuItem}
                 onPress={() => {
                   setMenuVisible(false);
-                  navigation.navigate("Settings");
+                  navigation.navigate("SettingsScreen");
                 }}
               >
                 <Ionicons name="settings-outline" size={24} color="#280300" />
