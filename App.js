@@ -35,6 +35,8 @@ import WalletScreen from "./src/screens/WalletScreen";
 // import BannerListScreen from "./src/screens/BannerListScreen";
 // import BannerDetailScreen from "./src/screens/BannerDetailScreen";
 // import NotificationDetail from "./src/screens/NotificationDetail";
+// import handlelogout from "./src/screens/handlelogout";
+
 
 const Stack = createStackNavigator();
 
@@ -50,6 +52,7 @@ export default function App() {
          <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
          <Stack.Screen name="WalletScreen" component={WalletScreen} />
          <Stack.Screen name="OrdersScreen" component={OrdersScreen} />
+         {/* <Stack.Screen name="handlelogout" component={handlelogout} /> */}
 
 
 
