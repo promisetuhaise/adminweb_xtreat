@@ -1,4 +1,4 @@
-import React, { useState,} from "react";
+import React, { useState, } from "react";
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import { BarChart, LineChart } from "react-native-chart-kit";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect} from "react";
+import { useEffect } from "react";
 import axios from "axios";
 
 const storeAvatar = require("../../assets/logo.png");
@@ -36,97 +36,89 @@ const AdminDashboard = () => {
   const [salesData, setSalesData] = useState({});
   const [revenueData, setRevenueData] = useState({
     labels: [],
-    datasets:[
-    {
-      data: [],
-    },
-  ],
+    datasets: [
+      {
+        data: [],
+      },
+    ],
   });
-  const handleLogout = () => {
-    // Logic to handle logout
-    console.log("User logged out");
-    navigation.navigate('Login'); 
-};
-  
-  
+  const handleLogout = async () => {
+    try {
+      // Clear the auth token from AsyncStorage
+      await AsyncStorage.removeItem("authToken");
 
+      // Reset user data state
+      setUserData({});
 
+      // Optionally, reset other states or do additional clean-up as needed
 
-  // const salesData = {
-  //   Today: 500000,
-  //   "Last Week": 3200000,
-  //   "Last Month": 950000,
-  //   "All Time": 2700000,
-  // };
-  // const ordersData = {
-  //   Today: 12,
-  //   "Last Week": 80,
-  //   "Last Month": 300,
-  //   "All Time": 5000,
-  // };
-  // const loanData = {
-  //   Today: 10,
-  //   "Last Week": 50,
-  //   "Last Month": 150,
-  //   "All Time": 2000,
-  // };
-  // // const userData = {
-  // //   Today: 5,
-  // //   "Last Week": 30,
-  // //   "Last Month": 100,
-  // //   "All Time": 500,
-  // // };
+      // Navigate to the login screen
+      console.log("User logged out");
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
 
-  // const transactions = [
-  //   { id: "1", title: "Transaction #1", details: "+ UGX 50,000 - Deposit" },
-  //   { id: "2", title: "Transaction #2", details: "- UGX 20,000 - Withdrawal" },
-  //   { id: "3", title: "Transaction #3", details: "+ UGX 30,000 - Deposit" },
-  //   { id: "4", title: "Transaction #4", details: "- UGX 10,000 - Withdrawal" },
-  //   { id: "5", title: "Transaction #5", details: "+ UGX 70,000 - Deposit" },
-  //   { id: "6", title: "Transaction #6", details: "- UGX 25,000 - Withdrawal" },
-  //   { id: "7", title: "Transaction #7", details: "+ UGX 40,000 - Deposit" },
-  //   { id: "8", title: "Transaction #8", details: "- UGX 15,000 - Withdrawal" },
-  //   { id: "9", title: "Transaction #9", details: "+ UGX 60,000 - Deposit" },
-  //   {
-  //     id: "10",
-  //     title: "Transaction #10",
-  //     details: "- UGX 30,000 - Withdrawal",
-  //   },
-  //   { id: "11", title: "Transaction #11", details: "+ UGX 55,000 - Deposit" },
-  //   {
-  //     id: "12",
-  //     title: "Transaction #12",
-  //     details: "- UGX 20,000 - Withdrawal",
-  //   },
-  // ];
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const salesResponse = await axios.get(
-          "https://api-xtreative.onrender.com/api/v1/admins/sales"
-        );
-        const ordersResponse = await axios.get(
-          "https://api-xtreative.onrender.com/api/v1/admins/orders"
-        );
-        const loanResponse = await axios.get(
-          "https://api-xtreative.onrender.com/api/v1/admins/loans"
-        );
-        const transactionsResponse = await axios.get(
-          "https://api-xtreative.onrender.com/api/v1/admins/transactions"
-        );
-        const revenueResponse = await axios.get(
-          "https://api-xtreative.onrender.com/api/v1/admins/revenue"
-        );
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQzNTg5NTI5LCJpYXQiOjE3NDM1MDMxMjksImp0aSI6IjNjYjQ4N2U2NGY5MjRhYjI5YzFjYjhmZDU4M2Q2NjFjIiwidXNlcl9pZCI6MTM1fQ.M3RV2ECNh7qovEKCf-cL-0BcRcDoACT6Wi01zuTCwps";
+        if (!token) {
+          console.error("No authentication token found.");
+          return;
+        }
+
+        // Fetch all data in parallel
+        const [
+          salesResponse,
+          ordersResponse,
+          loanResponse,
+          transactionsResponse,
+          revenueResponse,
+          usersResponse,
+        ] = await Promise.all([
+          axios.get("https://api-xtreative.onrender.com/api/v1/admins/sales", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("https://api-xtreative.onrender.com/api/v1/admins/orders", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("https://api-xtreative.onrender.com/api/v1/admins/loans", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("https://api-xtreative.onrender.com/api/v1/admins/transactions", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("https://api-xtreative.onrender.com/api/v1/admins/revenue", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("https://api-xtreative.onrender.com/api/v1/admins/users/", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        console.log("Users API Response:", usersResponse.data);
+
+        const fetchedUsers = usersResponse.data;
+        if (!Array.isArray(fetchedUsers)) {
+          console.error("Unexpected API response format:", fetchedUsers);
+          return;
+        }
+
+        setUserData({ total: fetchedUsers.length });
 
         // Update state with fetched data
         setSalesData(salesResponse.data);
         setOrdersData(ordersResponse.data);
         setLoanData(loanResponse.data);
-        setTransactions(transactionsResponse.data);
-        setRevenueData(revenueResponse.data); // Assuming you've declared setRevenueData
+        setTransactionsData(transactionsResponse.data);
+        setRevenueData(revenueResponse.data);
+
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
+        setUserData({ total: 0, daily: 0, weekly: 0, monthly: 0 }); // Default in case of an error
       } finally {
         setLoading(false);
       }
@@ -134,21 +126,11 @@ const AdminDashboard = () => {
 
     fetchDashboardData();
 
-    // Refresh data every 30 seconds for real-time updates
+    // Refresh data every 30 seconds
     const interval = setInterval(fetchDashboardData, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
-    return () => clearInterval(interval); // Cleanup on unmount
-}, []);
-
-//   return (
-//     <View>
-//         <Text>Total Revenue: {revenueData.total}</Text>
-//         <Text>Daily Revenue: {revenueData.daily}</Text>
-//         {/* Other UI elements */}
-//     </View>
-// );
-
-  
   return (
     <View
       style={[
@@ -311,9 +293,14 @@ const AdminDashboard = () => {
                 <Ionicons name="menu-outline" size={28} color="#280300" />
               </TouchableOpacity>
             )}
-            <Text style={styles.topBarTitle}>Dashboard</Text>
+
+            <View style={styles.dashboardRow}>
+              <Image source={storeAvatar} style={styles.walletLogo} />
+              <Text style={styles.topBarTitle}>Dashboard</Text>
+            </View>
           </View>
-          <View style={styles.topBarRight}>
+
+          <View style={styles.topRightContainer}>
             <View style={styles.searchBar}>
               <Ionicons name="search-outline" size={20} color="#bbb" />
               <Text style={styles.searchBarPlaceholder}>Search</Text>
@@ -438,27 +425,16 @@ const AdminDashboard = () => {
                 Loan Requests
               </Text>
             </View>
-            <View
-              style={[
-                styles.statsCard,
-                isSmallDevice && styles.statsCardMobile,
-              ]}
-            >
+            <View style={styles.statsCard}>
               {loading ? (
                 <ActivityIndicator size="small" color="#0000ff" />
               ) : (
                 <>
+                  {/* Displaying the value based on selected filter */}
                   <Text style={styles.cardValue}>
-                    {userData[selectedFilter] || 0}
+                    {userData.total || 18} {/* Display total users or default to 0 */}
                   </Text>
-                  <Text
-                    style={[
-                      styles.statsLabel,
-                      isSmallDevice && styles.statsLabelMobile,
-                    ]}
-                  >
-                    Users
-                  </Text>
+                  <Text style={styles.statsLabel}>Users</Text>
                 </>
               )}
             </View>
@@ -466,11 +442,11 @@ const AdminDashboard = () => {
 
           <View style={styles.extraStatsRow}>
             <View style={styles.extraStatsCard}>
-              <Text style={styles.extraStatsValue}>UGX 500,000</Text>
+              <Text style={styles.extraStatsValue}>UGX </Text>
               <Text style={styles.extraStatsLabel}>Total Earnings</Text>
             </View>
             <View style={styles.extraStatsCard}>
-              <Text style={styles.extraStatsValue}>15</Text>
+              <Text style={styles.extraStatsValue}></Text>
               <Text style={styles.extraStatsLabel}>Pending Payouts</Text>
             </View>
           </View>
@@ -602,10 +578,9 @@ const AdminDashboard = () => {
             showsVerticalScrollIndicator={true}
           >
             <View style={styles.walletSection}>
-              <Image source={storeAvatar} style={styles.walletLogo} />
               <View style={styles.walletCard}>
                 <View style={styles.walletBalanceRow}>
-                  <Text style={styles.walletBalance}>UGX </Text>
+                  <Text style={styles.walletBalance}>UGX</Text>
                   <TouchableOpacity
                     style={styles.addFundsBtn}
                     onPress={() => alert("Add Funds")}
@@ -685,43 +660,75 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
   },
-  topBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-    justifyContent: "space-between",
-  },
   topBarLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  hamburgerIcon: {
-    marginRight: 10,
+  dashboardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  walletLogo: {
+    width: 24, 
+    height: 24, 
+    marginRight: 10, 
   },
   topBarTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#3a3a3a",
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#280300',
   },
   topBarRight: {
     flexDirection: "row",
     alignItems: "center",
   },
-  searchBar: {
+  // searchBar: {
+  //   flexDirection: "row",
+  //   alignItems: "center",
+  //   backgroundColor: "#fff",
+  //   paddingHorizontal: 10,
+  //   borderRadius: 6,
+  //   height: 36,
+  //   borderWidth: 1,
+  //   borderColor: "#ebedf0",
+  // },
+  topRightContainer: {
+    position: "absolute",
+    top: 10,   // Adjust as needed
+    right: 20, // Move to the right
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    gap: 10,  // Space between search and logout button
+},
+searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 20,
     paddingHorizontal: 10,
-    borderRadius: 6,
-    height: 36,
-    borderWidth: 1,
-    borderColor: "#ebedf0",
-  },
-  searchBarPlaceholder: {
-    marginLeft: 6,
-    color: "#bbb",
-  },
-  accountIconContainer: {
+    height: 40,
+    width: 300, // Reduced width for better fit
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+},
+searchInput: {
+    height: 35,
+    fontSize: 16,
+    color: "#333",
+    marginLeft: 8,
+    width: 250, // Adjust width to fit inside search bar
+},
+logoutButton: {
+    backgroundColor: '#f9622c',
+    padding: 10,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+},
+accountIconContainer: {
     marginLeft: 10,
   },
   contentScroll: {
