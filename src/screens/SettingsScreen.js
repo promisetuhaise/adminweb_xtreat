@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import {
   View,
   Text,
@@ -30,14 +31,12 @@ const SettingsScreen = () => {
     {
       id: 5,
       title: "Privacy Policy",
-      onPress: () =>
-        Alert.alert("Privacy Policy", "This is the privacy policy."),
+      onPress: () => Alert.alert("Privacy Policy", "This is the privacy policy."),
     },
     {
       id: 6,
       title: "Terms of Service",
-      onPress: () =>
-        Alert.alert("Terms of Service", "This is the terms of service."),
+      onPress: () => Alert.alert("Terms of Service", "This is the terms of service."),
     },
     {
       id: 7,
@@ -51,45 +50,88 @@ const SettingsScreen = () => {
   ];
 
   return (
-    <ScrollView style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backText}>← Back</Text>
-      </TouchableOpacity>
-      <Text style={styles.title}>Settings</Text>
-
-      <View style={styles.settingsContainer}>
-        {settingsOptions.map((option) => (
+    <View style={styles.container}>
+      {/* Sidebar */}
+      <View style={styles.sidebar}>
+        {[
+          { name: "Dashboard", icon: "grid-outline", route: "AdminDashboard" },
+          { name: "Customers", icon: "people-outline", route: "Customers" },
+          { name: "Vendors", icon: "storefront-outline", route: "Vendors" },
+          { name: "Reports", icon: "document-text-outline", route: "Reports" },
+          { name: "Orders", icon: "cart-outline", route: "Orders" },
+          { name: "Settings", icon: "settings-outline", route: "Settings" },
+        ].map((item, index) => (
           <TouchableOpacity
-            key={option.id}
-            style={styles.option}
-            onPress={option.onPress}
-            disabled={option.id === 4} // Disable touch on Notifications
+            key={index}
+            style={styles.sidebarIconContainer}
+            onPress={() => navigation.navigate(item.route)}
           >
-            <View style={styles.optionRow}>
-              <Text style={styles.optionText}>{option.title}</Text>
-              {option.id === 4 && (
-                <Switch
-                  value={notificationsEnabled}
-                  onValueChange={() =>
-                    setNotificationsEnabled(!notificationsEnabled)
-                  }
-                />
-              )}
-            </View>
+            <Ionicons name={item.icon} size={24} color="#fff" />
+            <Text style={styles.sidebarIconLabel}>{item.name}</Text>
           </TouchableOpacity>
         ))}
       </View>
-    </ScrollView>
+
+      {/* Main Content */}
+      <ScrollView style={styles.mainContent}>
+        <Text style={styles.title}>Settings</Text>
+        <View style={styles.settingsContainer}>
+          {settingsOptions.map((option) => (
+            <TouchableOpacity
+              key={option.id}
+              style={styles.option}
+              onPress={option.onPress}
+              disabled={option.id === 4} // Disable touch on Notifications
+            >
+              <View style={styles.optionRow}>
+                <Text style={styles.optionText}>{option.title}</Text>
+                {option.id === 4 && (
+                  <Switch
+                    value={notificationsEnabled}
+                    onValueChange={() => setNotificationsEnabled(!notificationsEnabled)}
+                  />
+                )}
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
-  backButton: { marginBottom: 10 },
-  backText: { color: "red", fontSize: 16 },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
+  container: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: "#f9f9f9",
+  },
+  sidebar: {
+    width: 90,
+    backgroundColor: "#F9622C",
+    paddingVertical: 20,
+    alignItems: "center",
+  },
+  sidebarIconContainer: {
+    alignItems: "center",
+    marginVertical: 15,
+  },
+  sidebarIconLabel: {
+    marginTop: 4,
+    fontSize: 12,
+    color: "#fff",
+  },
+  mainContent: {
+    flex: 1,
+    padding: 20,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 20,
+    color: "#333",
+  },
   settingsContainer: {
-    flexDirection: "column",
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
@@ -115,7 +157,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  optionText: { fontSize: 16, color: "red" },
+  optionText: {
+    fontSize: 16,
+    color: "#333",
+  },
 });
 
 export default SettingsScreen;

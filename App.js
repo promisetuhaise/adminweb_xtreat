@@ -18,9 +18,9 @@ import OrdersScreen from './src/screens/OrdersScreen';
 // import BalanceScreen from "./src/screens/BalanceScreen";
 // import TransferScreen from "./src/screens/TransferScreen";
 // import DeliveryReportsScreen from "./src/screens/DeliveryReportsScreen";
-// import LoanRepayments from "./src/screens/LoanRepayments";
+import LoanRepayments from "./src/screens/LoanRepayments";
 // import AllUsersScreen from "./src/screens/AllUsersScreen";
-// import LoanApplications from "./src/screens/LoanApplications";
+import LoanApplications from "./src/screens/LoanApplications";
 // import SalesReport from "./src/screens/SalesReport";
 // import AddEmployee from "./src/screens/AddEmployee";
 // import EmployeeList from "./src/screens/EmployeeList";
@@ -28,7 +28,7 @@ import OrdersScreen from './src/screens/OrdersScreen';
 import SettingsScreen from "./src/screens/SettingsScreen";
 import WalletScreen from "./src/screens/WalletScreen";
 // import DepositScreen from "./src/screens/DepositScreen";
-// import WithdrawScreen from "./src/screens/WithdrawScreen";
+import WithdrawScreen from "./src/screens/WithdrawScreen";
 // import TransactionHistoryScreen from "./src/screens/TransactionHistoryScreen";
 // import BannerSection from "./src/screens/BannerSection";
 // import AddBannerScreen from "./src/screens/AddBannerScreen";
@@ -51,9 +51,13 @@ export default function App() {
          <Stack.Screen name="VendorDetails" component={VendorDetails} />
          <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
          <Stack.Screen name="WalletScreen" component={WalletScreen} />
+         <Stack.Screen name="WithdrawScreen" component={WithdrawScreen} />
          <Stack.Screen name="OrdersScreen" component={OrdersScreen} />
-         {/* <Stack.Screen name="handlelogout" component={handlelogout} /> */}
-
+         <Stack.Screen name="LoanApplications" component={LoanApplications} />
+         <Stack.Screen name="LoanRepayments" component={LoanRepayments} />
+         
+         
+         
 
 
         

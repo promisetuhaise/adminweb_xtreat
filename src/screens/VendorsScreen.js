@@ -98,7 +98,7 @@ const VendorsScreen = () => {
     try {
       const token = "your-hardcoded-token-or-dynamic-token";
       const response = await fetch(
-        `http://192.168.28.234:8000/api/v1/vendors/${vendorId}/toggle-status/`,
+        "https://api-xtreative.onrender.com/vendors/api/v1/approve/{vendor_id}/",
         {
           method: "POST",
           headers: {

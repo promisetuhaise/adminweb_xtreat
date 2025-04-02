@@ -542,7 +542,7 @@ const AdminDashboard = () => {
                   <Image source={storeAvatar} style={styles.walletLogo} />
                   <View style={styles.walletCard}>
                     <View style={styles.walletBalanceRow}>
-                      <Text style={styles.walletBalance}>UGX 1,200,000</Text>
+                      <Text style={styles.walletBalance}>UGX </Text>
                       <TouchableOpacity
                         style={styles.addFundsBtn}
                         onPress={() => alert("Add Funds")}
@@ -605,7 +605,7 @@ const AdminDashboard = () => {
               <Image source={storeAvatar} style={styles.walletLogo} />
               <View style={styles.walletCard}>
                 <View style={styles.walletBalanceRow}>
-                  <Text style={styles.walletBalance}>UGX 1,200,000</Text>
+                  <Text style={styles.walletBalance}>UGX </Text>
                   <TouchableOpacity
                     style={styles.addFundsBtn}
                     onPress={() => alert("Add Funds")}
