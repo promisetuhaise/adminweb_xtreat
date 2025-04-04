@@ -29,19 +29,29 @@ const AdminDashboard = () => {
   const [rightPanelVisible, setRightPanelVisible] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("Today");
   const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState({});
-  const [ordersData, setOrdersData] = useState({});
-  const [loanData, setLoanData] = useState({});
+  const [userData, setUserData] = useState({total: 0});
+  const [ordersData, setOrdersData] = useState({newOrders: 0});
+  const [loanData, setLoanData] = useState({loanRequests: 0});
   const [transactions, setTransactions] = useState([]);
-  const [salesData, setSalesData] = useState({});
+  const [salesData, setSalesData] = useState({totalSales: 0});
   const [revenueData, setRevenueData] = useState({
-    labels: [],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May"],
     datasets: [
       {
-        data: [],
+        data: [500, 1000, 1500, 2000, 2500],
       },
     ],
   });
+  const cleanedRevenueData = {
+    labels: revenueData.labels || [], // Ensure labels exist
+    datasets: [
+      {
+        data: revenueData.datasets[0].data.map(value => (isNaN(value) ? 0 : value)), // Replace NaN with 0
+      },
+    ],
+  };
+  console.log("Revenue Data:", revenueData);
+  
   const handleLogout = async () => {
     try {
       // Clear the auth token from AsyncStorage
@@ -49,8 +59,6 @@ const AdminDashboard = () => {
 
       // Reset user data state
       setUserData({});
-
-      // Optionally, reset other states or do additional clean-up as needed
 
       // Navigate to the login screen
       console.log("User logged out");
@@ -115,6 +123,7 @@ const AdminDashboard = () => {
         setLoanData(loanResponse.data);
         setTransactionsData(transactionsResponse.data);
         setRevenueData(revenueResponse.data);
+        setcleanedRevenueData(cleanedRevenueResponse.data);
 
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -226,7 +235,17 @@ const AdminDashboard = () => {
                 style={styles.menuItem}
                 onPress={() => {
                   setMenuVisible(false);
-                  navigation.navigate("Customers");
+                  navigation.navigate("Orders");
+                }}
+              >
+                <Ionicons name="people-outline" size={24} color="#280300" />
+                <Text style={styles.menuItemText}>Vendors</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setMenuVisible(false);
+                  navigation.navigate("Vendors");
                 }}
               >
                 <Ionicons name="people-outline" size={24} color="#280300" />
@@ -236,17 +255,7 @@ const AdminDashboard = () => {
                 style={styles.menuItem}
                 onPress={() => {
                   setMenuVisible(false);
-                  navigation.navigate("Vendors");
-                }}
-              >
-                <Ionicons name="storefront-outline" size={24} color="#280300" />
-                <Text style={styles.menuItemText}>Vendors</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => {
-                  setMenuVisible(false);
-                  navigation.navigate("Reports");
+                  navigation.navigate("Customers");
                 }}
               >
                 <Ionicons

@@ -54,7 +54,7 @@ const VendorsScreen = () => {
   useEffect(() => {
     const fetchVendors = async () => {
       try {
-        const response = await fetch("https://api-xtreative.onrender.com/vendors/api/v1/", {
+        const response = await fetch("https://api-xtreative.onrender.com/vendors", {
           headers: {
             "Content-Type": "application/json",
           },
@@ -98,7 +98,7 @@ const VendorsScreen = () => {
     try {
       const token = "your-hardcoded-token-or-dynamic-token";
       const response = await fetch(
-        "https://api-xtreative.onrender.com/vendors/api/v1/approve/{vendor_id}/",
+        "https://api-xtreative.onrender.com/vendors/approve/{vendor_id}/",
         {
           method: "POST",
           headers: {
