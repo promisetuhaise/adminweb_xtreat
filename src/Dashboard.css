@@ -1,0 +1,136 @@
+.dashboard {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Summary Cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.card-icon {
+  font-size: 30px;
+  background: #f8e9e2;
+  border-radius: 50%;
+  padding: 10px;
+}
+
+.card-content h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #666;
+}
+
+.card-content p {
+  margin: 5px 0 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Order List Table */
+.order-list {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.table-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.table-header select {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: #f9f9f9;
+  font-weight: bold;
+  color: #333;
+}
+
+.status {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status.paid {
+  background: #e0f7e9;
+  color: #28a745;
+}
+
+.status.unpaid {
+  background: #f8e9e2;
+  color: #dc3545;
+}
+
+.status.refund {
+  background: #f8e9e2;
+  color: #dc3545;
+}
+
+.status.completed {
+  background: #e0f7e9;
+  color: #28a745;
+}
+
+.status.canceled {
+  background: #f8e9e2;
+  color: #dc3545;
+}
+
+.status.packaging {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status.draft {
+  background: #e9ecef;
+  color: #6c757d;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 0 5px;
+}
