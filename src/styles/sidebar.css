@@ -1,0 +1,57 @@
+/* Fixed Sidebar */
+.sidebar {
+    position: fixed; /* Removes the sidebar from the normal flow */
+    top: 0;
+    left: 0;
+    width: 80px;
+    height: 100vh; /* Full viewport height */
+    background-color: #f9622c;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    font-family: "Poppins";
+    z-index: 1000; /* Ensures it stays on top of other elements if necessary */
+  }
+  
+  /* Sidebar top and bottom remain unchanged */
+  .sidebar-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 4px;
+  }
+  
+  .sidebar-bottom {
+    margin-top: 20px;
+  }
+  
+  /* Sidebar buttons */
+  .sidebar-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    
+  }
+  
+  .sidebar-btn span {
+    margin-top: 6px;
+    font-size: 9px;
+  }
+  
+  .sidebar-btn:hover {
+   
+    color: #280300;
+    
+  }
+  
+  .sidebar-btn:hover svg {
+    color: #280300;}
+ 
+    
