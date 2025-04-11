@@ -1,0 +1,16 @@
+/* src/index.css */
+
+/* 1. Import Poppins from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* 2. Override React‑Toastify container so all toasts use Poppins at 10px */
+.Toastify__toast-container {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 12px !important;
+}
+
+/* 3. Ensure the toast body inherits those settings */
+.Toastify__toast-body {
+  font-family: inherit !important;
+  font-size: inherit !important;
+}
