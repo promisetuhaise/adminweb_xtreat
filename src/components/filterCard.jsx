@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
-import ReactSlider from "react-slider";
+// Remove: import Slider from "rc-slider";
+// Import Material UI Slider instead.
+import Slider from "@mui/material/Slider"; 
+import "../styles/index.css";
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 import { FaStar } from "react-icons/fa";
 import ProductSection from "./product_section";
@@ -66,6 +69,7 @@ const FilterAndCard = () => {
         // Initialize the selected price range to the entire boundary.
         setSelectedPriceRange([computedMin, computedMax]);
         setSelectedPriceOption("all");
+        // Update the applied filters with the dynamic price range.
         setAppliedFilters((prev) => ({
           ...prev,
           minPrice: computedMin,
@@ -193,7 +197,7 @@ const FilterAndCard = () => {
   };
 
   // Update slider changes
-  const handleSliderChange = (newRange) => {
+  const handleSliderChange = (event, newRange) => {
     setSelectedPriceRange(newRange);
     setSelectedPriceOption("custom");
   };
@@ -338,29 +342,29 @@ const FilterAndCard = () => {
                   <p className="text-[11px] font-medium text-gray-700 mb-1">
                     Custom Price Range:
                   </p>
-                  <ReactSlider
-                    className="horizontal-slider"
-                    thumbClassName="thumb"
-                    trackClassName="track"
+                  {/* Material UI Slider replacing rc-slider */}
+                  <Slider
+                    value={selectedPriceRange}
+                    onChange={handleSliderChange}
                     min={minPrice}
                     max={maxPrice}
                     step={50}
-                    value={selectedPriceRange}
-                    onChange={handleSliderChange}
-                    renderThumb={(props) => (
-                      <div
-                        {...props}
-                        className="bg-[#f9622c] w-3 h-3 -mt-1 rounded-full cursor-pointer"
-                      />
-                    )}
-                    renderTrack={(props, state) => (
-                      <div
-                        {...props}
-                        className={`h-1 rounded-full ${
-                          state.index === 1 ? "bg-[#f9622c]" : "bg-gray-200"
-                        }`}
-                      />
-                    )}
+                    valueLabelDisplay="auto"
+                    sx={{
+                      color: "#f9622c",
+                      height: 4,
+                      "& .MuiSlider-thumb": {
+                        width: 14,
+                        height: 14,
+                      },
+                      "& .MuiSlider-track": {
+                        height: 4,
+                      },
+                      "& .MuiSlider-rail": {
+                        height: 4,
+                        color: "#ccc",
+                      },
+                    }}
                   />
                   <div className="flex items-center text-[11px] text-gray-600 space-x-2 mt-2">
                     <div className="flex items-center flex-1 border rounded p-2">
