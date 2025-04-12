@@ -1,6 +1,6 @@
 // pages/ProductDetails.jsx
 
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Sidebar from "../components/sidebar";
 import Header from "../components/header";
@@ -9,7 +9,7 @@ import StatsCard from "../components/Cards";
 import ReviewsRatings from "../components/product_review_ratings"; // Import the ReviewsRatings component
 
 // icons
-import { FaSearchPlus } from "react-icons/fa";
+import { FaSearchPlus, FaTimes } from "react-icons/fa";
 
 // Import your local image
 import defaultProductImage from "../assets/sweater.jpg";
@@ -17,6 +17,9 @@ import defaultProductImage from "../assets/sweater.jpg";
 export default function ProductDetails() {
   const location = useLocation();
   const { product } = location.state || {};
+
+  // State for toggling the zoom modal
+  const [showZoom, setShowZoom] = useState(false);
 
   // Fallback values
   const title = product?.name || "Leather Shirt";
@@ -69,8 +72,11 @@ export default function ProductDetails() {
                     className="object-cover h-30 w-full rounded p-5"
                   />
                   {/* Overlay icon changes to zoom icon on hover */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <FaSearchPlus className="text-white text-2xl cursor-pointer" />
+                  <div
+                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    onClick={() => setShowZoom(true)}
+                  >
+                    <FaSearchPlus className="text-white text-2xl" />
                   </div>
                 </div>
                 {/* Item Details */}
@@ -187,6 +193,31 @@ export default function ProductDetails() {
           </div>
         </main>
       </div>
+
+      {/* Zoom Modal */}
+      {showZoom && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50"
+          onClick={() => setShowZoom(false)}
+        >
+          <div
+            className="relative"
+            onClick={(e) => e.stopPropagation()} // Prevents closing modal on image click
+          >
+            <img
+              src={defaultProductImage}
+              alt={title}
+              className="max-w-full max-h-screen rounded shadow-lg"
+            />
+            <button
+              className="absolute top-2 right-2 text-white bg-gray-700 rounded-full p-2 hover:bg-gray-600"
+              onClick={() => setShowZoom(false)}
+            >
+              <FaTimes />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
