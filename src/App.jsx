@@ -4,6 +4,8 @@ import LoginScreen from './pages/login.jsx';
 import AdminDashboard from './pages/adminDashboard.jsx';
 import Vendors from './pages/vendors.jsx';
 import Customers from './pages/customers.jsx';
+import Products from './pages/products.jsx';
+import ProductDetails from './pages/products_details_product.jsx';
 import VendorsDetails from './pages/vendorDetails.jsx';
 import CustomerDetails from './pages/customerDetails.jsx';
 import { ToastContainer } from "react-toastify";
@@ -21,10 +23,14 @@ function App() {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/Vendors" element={<Vendors />} />
         <Route path="/Customers" element={<Customers />} />
+        <Route path="/products" element={<Products />} />
         <Route path="/Vendors/details" element={<VendorsDetails />} />
         <Route path="/Customers/details" element={<CustomerDetails />} />
         <Route path="/orders" element={<OrderList />} />
         <Route path="/order/:orderId" element={<OrderDetailsPage />} />
+        <Route path="/product/:publicId/:slug" element={<ProductDetails />} />
+
+
       </Routes>
 
       {/* ToastContainer should be outside of <Routes> */}
