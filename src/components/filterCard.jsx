@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
-// Remove: import Slider from "rc-slider";
-// Import Material UI Slider instead.
 import Slider from "@mui/material/Slider"; 
 import "../styles/index.css";
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 import { FaStar } from "react-icons/fa";
 import ProductSection from "./product_section";
+import Loader from "../pages/Loader"; // Import the Loader component
 
 const API_URL = "https://api-xtreative.onrender.com/products/listing/";
 
@@ -152,7 +151,9 @@ const FilterAndCard = () => {
     if (category === "All Categories") {
       setSelectedCategories(checked ? ["All Categories"] : []);
     } else {
-      let newSelection = selectedCategories.filter((cat) => cat !== "All Categories");
+      let newSelection = selectedCategories.filter(
+        (cat) => cat !== "All Categories"
+      );
       if (checked) {
         newSelection.push(category);
       } else {
@@ -233,12 +234,9 @@ const FilterAndCard = () => {
     }
   };
 
+  // Display the loader until the products are fetched.
   if (loadingProducts) {
-    return (
-      <div className="p-4 text-center text-[13px]">
-        Loading products...
-      </div>
-    );
+    return <Loader />;
   }
   if (fetchError) {
     return (
@@ -374,8 +372,14 @@ const FilterAndCard = () => {
                         value={selectedPriceRange[0]}
                         onChange={(e) => {
                           const newVal = Number(e.target.value);
-                          if (newVal <= selectedPriceRange[1] && newVal >= minPrice) {
-                            setSelectedPriceRange([newVal, selectedPriceRange[1]]);
+                          if (
+                            newVal <= selectedPriceRange[1] &&
+                            newVal >= minPrice
+                          ) {
+                            setSelectedPriceRange([
+                              newVal,
+                              selectedPriceRange[1],
+                            ]);
                             setSelectedPriceOption("custom");
                           }
                         }}
@@ -390,8 +394,14 @@ const FilterAndCard = () => {
                         value={selectedPriceRange[1]}
                         onChange={(e) => {
                           const newVal = Number(e.target.value);
-                          if (newVal >= selectedPriceRange[0] && newVal <= maxPrice) {
-                            setSelectedPriceRange([selectedPriceRange[0], newVal]);
+                          if (
+                            newVal >= selectedPriceRange[0] &&
+                            newVal <= maxPrice
+                          ) {
+                            setSelectedPriceRange([
+                              selectedPriceRange[0],
+                              newVal,
+                            ]);
                             setSelectedPriceOption("custom");
                           }
                         }}

@@ -1,26 +1,32 @@
-import React, { useState, useMemo } from "react";
+// src/components/ProductSection.jsx
+
+import React, { useState, useMemo, useContext } from "react";
 import { FaStar, FaSyncAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import Loader from "../pages/Loader"; // Ensure the import path is correct
+import Loader from "../pages/Loader";
 import { slugify } from "../utils/slugify";
 import Fuse from "fuse.js";
+import { ProductContext } from "../context/productcontext";
 
-const OFFSET = 10000; // same offset trick as before
+const OFFSET = 10000;
 
 const ProductSection = ({ products, filters }) => {
-  // First apply the filters (except the search term for now)  
+  const { setSelectedProduct } = useContext(ProductContext);
+
+  // Apply basic filters: price range, rating, categories, sizes
   const basicFilteredProducts = useMemo(() => {
     return (products || []).filter((product) => {
       let match = true;
-      // Filter by dynamic price range
+      // Price filter
       match =
         match &&
         Number(product.price) >= filters.minPrice &&
         Number(product.price) <= filters.maxPrice;
-      // Filter by rating (if a rating is set, show products with rating >= selection)
-      if (filters.selectedRating)
+      // Rating filter
+      if (filters.selectedRating) {
         match = match && (product.rating ?? 0) >= filters.selectedRating;
-      // Filter by category if not "All Categories"
+      }
+      // Category filter
       if (
         filters.selectedCategories &&
         !filters.selectedCategories.includes("All Categories") &&
@@ -28,7 +34,7 @@ const ProductSection = ({ products, filters }) => {
       ) {
         match = match && filters.selectedCategories.includes(product.category);
       }
-      // NEW: Filter by size if not "All Sizes" and if product has a size property.
+      // Size filter
       if (
         filters.selectedSizes &&
         !filters.selectedSizes.includes("All Sizes") &&
@@ -38,25 +44,31 @@ const ProductSection = ({ products, filters }) => {
       }
       return match;
     });
-  }, [products, filters.minPrice, filters.maxPrice, filters.selectedRating, filters.selectedCategories, filters.selectedSizes]);
+  }, [
+    products,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.selectedRating,
+    filters.selectedCategories,
+    filters.selectedSizes,
+  ]);
 
-  // Now perform fuzzy search on the already filtered list.
-  // Fuse options can be tuned; here we search on the "name" key.
+  // Fuse.js options for fuzzy search
   const fuseOptions = {
     keys: ["name"],
-    threshold: 0.3, // Adjust this value for fuzziness: lower is stricter, higher is more relaxed.
+    threshold: 0.3,
   };
 
+  // Apply search term on already filtered list
   const filteredProducts = useMemo(() => {
     if (filters.searchTerm) {
       const fuse = new Fuse(basicFilteredProducts, fuseOptions);
-      // Fuse returns an array of results; map each result to its item.
       return fuse.search(filters.searchTerm).map((result) => result.item);
     }
     return basicFilteredProducts;
   }, [basicFilteredProducts, filters.searchTerm]);
 
-  // Pagination calculations on filtered products
+  // Pagination state
   const [productsPerPage, setProductsPerPage] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
@@ -64,7 +76,7 @@ const ProductSection = ({ products, filters }) => {
   const idxFirst = idxLast - productsPerPage;
   const currentProducts = filteredProducts.slice(idxFirst, idxLast);
 
-  // Handlers for pagination and entries
+  // Handlers
   const handlePrevClick = () => currentPage > 1 && setCurrentPage((p) => p - 1);
   const handleNextClick = () => currentPage < totalPages && setCurrentPage((p) => p + 1);
   const handleEntriesChange = (e) => {
@@ -72,14 +84,14 @@ const ProductSection = ({ products, filters }) => {
     setCurrentPage(1);
   };
 
-  // If no products are present, show a loading indicator.
+  // Show loader if products not yet loaded
   if (!products.length) return <Loader />;
 
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
     <div>
-      {/* TOP BAR */}
+      {/* Top bar */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-sm text-gray-600">
           <span className="font-medium text-gray-700">
@@ -114,22 +126,28 @@ const ProductSection = ({ products, filters }) => {
 
       <hr className="my-4 border-gray-150" />
 
-      {/* PRODUCT GRID */}
+      {/* Product grid */}
       {currentProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {currentProducts.map((product) => {
             const publicId = product.id + OFFSET;
+            const slug = slugify(product.name);
             const imgSrc = product.product_image_url || product.product_image;
             const rating = product.rating ?? 0;
             const reviews = product.reviews ?? 0;
             return (
               <Link
                 key={product.id}
-                to={`/products/product/${publicId}/${slugify(product.name)}`}
+                to={`/products/product/${publicId}/${slug}`}
                 className="relative rounded-lg overflow-hidden block hover:shadow-lg transition-shadow"
+                onClick={() => setSelectedProduct(product)}
               >
                 <div className="h-40 w-full rounded">
-                  <img src={imgSrc} alt={product.name} className="object-contain w-full h-full" />
+                  <img
+                    src={imgSrc}
+                    alt={product.name}
+                    className="object-contain w-full h-full"
+                  />
                 </div>
                 <div className="p-2 space-y-1 text-center">
                   <h3 className="text-[10px] font-small text-gray-600 line-clamp-2">
@@ -153,7 +171,7 @@ const ProductSection = ({ products, filters }) => {
         </div>
       )}
 
-      {/* PAGINATION */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-6 space-x-2">
           <button
