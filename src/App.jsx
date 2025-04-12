@@ -28,7 +28,7 @@ function App() {
         <Route path="/Customers/details" element={<CustomerDetails />} />
         <Route path="/orders" element={<OrderList />} />
         <Route path="/order/:orderId" element={<OrderDetailsPage />} />
-        <Route path="/product/:publicId/:slug" element={<ProductDetails />} />
+        <Route path="/products/product/:publicId/:slug" element={<ProductDetails />} />
 
 
       </Routes>

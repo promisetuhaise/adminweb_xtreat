@@ -125,7 +125,7 @@ const ProductSection = ({ products, filters }) => {
             return (
               <Link
                 key={product.id}
-                to={`/product/${publicId}/${slugify(product.name)}`}
+                to={`/products/product/${publicId}/${slugify(product.name)}`}
                 className="relative rounded-lg overflow-hidden block hover:shadow-lg transition-shadow"
               >
                 <div className="h-40 w-full rounded">
